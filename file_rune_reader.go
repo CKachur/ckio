@@ -7,6 +7,7 @@ import (
 
 type FileRuneReader struct {
 	runeReader *RuneReader
+	file       *os.File
 }
 
 func NewFileRuneReader(fileName string) (*FileRuneReader, error) {
@@ -15,7 +16,11 @@ func NewFileRuneReader(fileName string) (*FileRuneReader, error) {
 		return nil, err
 	}
 	fileReader := bufio.NewReader(file)
-	return &FileRuneReader{runeReader: NewRuneReader(fileReader)}, nil
+	return &FileRuneReader{runeReader: NewRuneReader(fileReader), file: file}, nil
+}
+
+func (fileRuneReader *FileRuneReader) Close() error {
+	return fileRuneReader.file.Close()
 }
 
 func (fileRuneReader *FileRuneReader) Peek() (rune, error) {
