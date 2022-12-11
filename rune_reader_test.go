@@ -3,7 +3,6 @@ package ckio
 import (
 	"bufio"
 	"compress/gzip"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -38,7 +37,6 @@ func runRuneReaderTest(runeReader *RuneReader, t *testing.T) {
 		if firstPeekValue != readValue {
 			t.Fatalf(`Peek() value followed by Read() value does not match: '%c' and '%c'`, firstPeekValue, readValue)
 		}
-		fmt.Printf("%c", readValue)
 		numberOfRunesRead++
 	}
 	if numberOfRunesRead == 0 {
