@@ -6,8 +6,7 @@ import (
 )
 
 type FileRuneReader struct {
-	fileReader *bufio.Reader
-	nextRune   rune
+	runeReader *RuneReader
 }
 
 func NewFileRuneReader(fileName string) (*FileRuneReader, error) {
@@ -16,32 +15,13 @@ func NewFileRuneReader(fileName string) (*FileRuneReader, error) {
 		return nil, err
 	}
 	fileReader := bufio.NewReader(file)
-	return &FileRuneReader{fileReader: fileReader, nextRune: 0}, nil
+	return &FileRuneReader{runeReader: NewRuneReader(fileReader)}, nil
 }
 
 func (fileRuneReader *FileRuneReader) Peek() (rune, error) {
-	if fileRuneReader.nextRune != 0 {
-		return fileRuneReader.nextRune, nil
-	}
-	runeValue, err := readRuneFromFileRuneReader(fileRuneReader)
-	if err != nil {
-		fileRuneReader.nextRune = 0
-	} else {
-		fileRuneReader.nextRune = runeValue
-	}
-	return fileRuneReader.nextRune, err
+	return fileRuneReader.runeReader.Peek()
 }
 
 func (fileRuneReader *FileRuneReader) Read() (rune, error) {
-	if fileRuneReader.nextRune != 0 {
-		nextRune := fileRuneReader.nextRune
-		fileRuneReader.nextRune = 0
-		return nextRune, nil
-	}
-	return readRuneFromFileRuneReader(fileRuneReader)
-}
-
-func readRuneFromFileRuneReader(fileRuneReader *FileRuneReader) (rune, error) {
-	runeValue, _, err := fileRuneReader.fileReader.ReadRune()
-	return runeValue, err
+	return fileRuneReader.runeReader.Read()
 }
