@@ -13,35 +13,7 @@ func TestRuneReaderFromFile(t *testing.T) {
 	defer testdataFile.Close()
 	gzipReader := getGzipReader(testdataFile)
 	runeReader := NewRuneReader(bufio.NewReader(gzipReader))
-	runRuneReaderTest(runeReader, t)
-}
-
-func TestRuneReaderFromString(t *testing.T) {
-	testString := "This cat is on fire!!!!!!!!!!!!!!1 🔥😼🔥\n"
-	runeReader := NewRuneReader(bufio.NewReader(strings.NewReader(testString)))
-	runRuneReaderTest(runeReader, t)
-}
-
-func runRuneReaderTest(runeReader *RuneReader, t *testing.T) {
-	numberOfRunesRead := 0
-	for {
-		firstPeekValue, _ := runeReader.Peek()
-		if firstPeekValue == 0 {
-			break
-		}
-		secondPeekValue, _ := runeReader.Peek()
-		readValue, _ := runeReader.Read()
-		if firstPeekValue != secondPeekValue {
-			t.Fatalf(`consecutive Peek() values do not match: '%c' and '%c'`, firstPeekValue, secondPeekValue)
-		}
-		if firstPeekValue != readValue {
-			t.Fatalf(`Peek() value followed by Read() value does not match: '%c' and '%c'`, firstPeekValue, readValue)
-		}
-		numberOfRunesRead++
-	}
-	if numberOfRunesRead == 0 {
-		t.Fatalf("did not read contents of file")
-	}
+	peekTwiceThenRead(runeReader, t)
 }
 
 func openTestdataFile() *os.File {
@@ -60,6 +32,12 @@ func getGzipReader(file *os.File) *gzip.Reader {
 	return gzipReader
 }
 
+func TestRuneReaderFromString(t *testing.T) {
+	testString := "This cat is on fire!!!!!!!!!!!!!!1 🔥😼🔥\n"
+	runeReader := NewRuneReader(bufio.NewReader(strings.NewReader(testString)))
+	peekTwiceThenRead(runeReader, t)
+}
+
 func TestFileRuneReader(t *testing.T) {
 	fileRuneReader, err := NewFileRuneReader("testdata/smalltest.json")
 	if err != nil {
@@ -67,14 +45,18 @@ func TestFileRuneReader(t *testing.T) {
 	}
 	defer fileRuneReader.Close()
 
+	peekTwiceThenRead(fileRuneReader, t)
+}
+
+func peekTwiceThenRead(runeReader PeekableRuneReader, t *testing.T) {
 	numberOfRunesRead := 0
 	for {
-		firstPeekValue, _ := fileRuneReader.Peek()
+		firstPeekValue, _ := runeReader.Peek()
 		if firstPeekValue == 0 {
 			break
 		}
-		secondPeekValue, _ := fileRuneReader.Peek()
-		readValue, _ := fileRuneReader.Read()
+		secondPeekValue, _ := runeReader.Peek()
+		readValue, _ := runeReader.Read()
 		if firstPeekValue != secondPeekValue {
 			t.Fatalf(`consecutive Peek() values do not match: '%c' and '%c'`, firstPeekValue, secondPeekValue)
 		}
