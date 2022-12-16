@@ -1,6 +1,6 @@
 package ckio
 
 type PeekableRuneReader interface {
-	Peek() (rune, error)
-	Read() (rune, error)
+	Peek() (rune, *ReadRuneError)
+	Read() (rune, *ReadRuneError)
 }
