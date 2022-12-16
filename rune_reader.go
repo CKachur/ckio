@@ -13,7 +13,7 @@ func NewRuneReader(reader *bufio.Reader) *RuneReader {
 	return &RuneReader{reader: reader}
 }
 
-func (runeReader *RuneReader) Peek() (rune, error) {
+func (runeReader *RuneReader) Peek() (rune, *ReadRuneError) {
 	if runeReader.nextRune != 0 {
 		return runeReader.nextRune, nil
 	}
@@ -26,7 +26,7 @@ func (runeReader *RuneReader) Peek() (rune, error) {
 	return runeReader.nextRune, err
 }
 
-func (runeReader *RuneReader) Read() (rune, error) {
+func (runeReader *RuneReader) Read() (rune, *ReadRuneError) {
 	if runeReader.nextRune != 0 {
 		nextRune := runeReader.nextRune
 		runeReader.nextRune = 0
@@ -35,7 +35,10 @@ func (runeReader *RuneReader) Read() (rune, error) {
 	return readRuneFromRuneReader(runeReader)
 }
 
-func readRuneFromRuneReader(runeReader *RuneReader) (rune, error) {
+func readRuneFromRuneReader(runeReader *RuneReader) (rune, *ReadRuneError) {
 	runeValue, _, err := runeReader.reader.ReadRune()
-	return runeValue, err
+	if err != nil {
+		return runeValue, NewReadRuneError(err.Error())
+	}
+	return runeValue, nil
 }
